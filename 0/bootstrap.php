@@ -2,9 +2,16 @@
 
 use Dotenv\Dotenv;
 use GeekBrains\Blog\Container\DIContainer;
+use GeekBrains\Blog\Http\Auth\AuthenticationInterface;
+use GeekBrains\Blog\Http\Auth\BearerTokenAuthentication;
+use GeekBrains\Blog\Http\Auth\PasswordAuthentication;
+use GeekBrains\Blog\Http\Auth\PasswordAuthenticationInterface;
+use GeekBrains\Blog\Http\Auth\TokenAuthenticationInterface;
+use GeekBrains\Blog\Repositories\AuthTokensRepositoryInterface;
 use GeekBrains\Blog\Repositories\CommentsRepositoryInterface;
 use GeekBrains\Blog\Repositories\LikesRepositoryInterface;
 use GeekBrains\Blog\Repositories\PostsRepositoryInterface;
+use GeekBrains\Blog\Repositories\SqliteAuthTokensRepository;
 use GeekBrains\Blog\Repositories\SqliteCommentsRepository;
 use GeekBrains\Blog\Repositories\SqliteLikesRepository;
 use GeekBrains\Blog\Repositories\SqlitePostsRepository;
@@ -85,6 +92,26 @@ if ('yes' === $_SERVER['LOG_TO_CONSOLE']) {
 $container->bind(
     LoggerInterface::class,
     $logger
+);
+
+$container->bind(
+    AuthenticationInterface::class,
+    PasswordAuthentication::class
+);
+
+$container->bind(
+    PasswordAuthenticationInterface::class,
+    PasswordAuthentication::class
+);
+
+$container->bind(
+    AuthTokensRepositoryInterface::class,
+    SqliteAuthTokensRepository::class
+);
+
+$container->bind(
+    TokenAuthenticationInterface::class,
+    BearerTokenAuthentication::class
 );
 
 // Возвращаем объект контейнера

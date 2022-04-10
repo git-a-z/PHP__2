@@ -2,6 +2,7 @@
 
 namespace GeekBrains\Blog\Http\Actions\Posts;
 
+use GeekBrains\Blog\Exceptions\PostNotFoundException;
 use GeekBrains\Blog\Http\Actions\ActionInterface;
 use GeekBrains\Blog\Http\ErrorResponse;
 use GeekBrains\Blog\Http\HttpException;
@@ -32,7 +33,7 @@ class DeletePost implements ActionInterface
         try {
             // Пытаемся удалить статью
             $this->postsRepository->delete($id);
-        } catch (HttpException $e) {
+        } catch (PostNotFoundException $e) {
             return new ErrorResponse($e->getMessage());
         }
 

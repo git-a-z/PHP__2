@@ -57,7 +57,7 @@ class PostRepositoryTest extends TestCase
 
         // Запускаем команду
         $command->handle(new Arguments([
-            'author_id' => '1',
+            'user_id' => '1',
             'title' => 'title',
             'text' => 'text',
         ]));

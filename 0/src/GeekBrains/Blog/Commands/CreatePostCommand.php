@@ -26,8 +26,7 @@ class CreatePostCommand implements CommandInterface
         $text = $arguments->get('text');
 
         $this->postsRepository->save(new Post(
-            0,
-            $arguments->get('author_id'), 
+            $arguments->get('user_id'),
             $arguments->get('title'),
             $text
         ));

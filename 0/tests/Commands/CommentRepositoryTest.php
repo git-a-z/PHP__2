@@ -56,7 +56,7 @@ class CommentRepositoryTest extends TestCase
         // Запускаем команду
         $command->handle(new Arguments([
             'post_id' => '1',
-            'author_id' => '1',
+            'user_id' => '1',
             'text' => 'text',
         ]));
 

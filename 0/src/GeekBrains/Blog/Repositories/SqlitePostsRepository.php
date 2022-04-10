@@ -11,12 +11,12 @@ class SqlitePostsRepository extends SqliteRepository implements PostsRepositoryI
     public function save(Post $post): void
     {
         $statement = $this->connection->prepare(
-            'INSERT INTO posts (author_id, title, text)
-            VALUES (:author_id, :title, :text)'
+            'INSERT INTO posts (user_id, title, text)
+            VALUES (:user_id, :title, :text)'
         );
 
         $statement->execute([
-            ':author_id' => $post->getAuthorId(),
+            ':user_id' => $post->getUserId(),
             ':title' => $post->getTitle(),
             ':text' => $post->getText()
         ]);
@@ -38,17 +38,18 @@ class SqlitePostsRepository extends SqliteRepository implements PostsRepositoryI
         $result = $statement->fetch(PDO::FETCH_ASSOC);
 
         if (false === $result) {
-            throw new PostNotFoundException(
-                "Cannot find post: $id"
-            );
+            throw new PostNotFoundException("Cannot find post: $id");
         }
 
-        return new Post(
-            $result['id'],
-            $result['author_id'], 
+        $post = new Post(
+            $result['user_id'],
             $result['title'], 
             $result['text'],
         );
+
+        $post->setId($result['id']);
+
+        return $post;
     }
 
     /**

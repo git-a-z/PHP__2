@@ -4,8 +4,9 @@ namespace GeekBrains\Blog\Http\Actions\Comments;
 
 use GeekBrains\Blog\Comment;
 use GeekBrains\Blog\Exceptions\PostNotFoundException;
-use GeekBrains\Blog\Exceptions\UserNotFoundException;
 use GeekBrains\Blog\Http\Actions\ActionInterface;
+use GeekBrains\Blog\Http\Auth\AuthenticationInterface;
+use GeekBrains\Blog\Http\Auth\AuthException;
 use GeekBrains\Blog\Http\ErrorResponse;
 use GeekBrains\Blog\Http\HttpException;
 use GeekBrains\Blog\Http\Request;
@@ -13,7 +14,6 @@ use GeekBrains\Blog\Http\Response;
 use GeekBrains\Blog\Http\SuccessfulResponse;
 use GeekBrains\Blog\Repositories\CommentsRepositoryInterface;
 use GeekBrains\Blog\Repositories\PostsRepositoryInterface;
-use GeekBrains\Blog\Repositories\UsersRepositoryInterface;
 use Psr\Log\LoggerInterface;
 
 class CreateComment implements ActionInterface
@@ -22,26 +22,25 @@ class CreateComment implements ActionInterface
     public function __construct(
         private CommentsRepositoryInterface $commentsRepository,
         private PostsRepositoryInterface $postsRepository,
-        private UsersRepositoryInterface $usersRepository,
+        // Вместо контракта репозитория пользователей
+        // внедряем контракт идентификации
+        private AuthenticationInterface $authentication,
         // Внедряем контракт логгера
         private LoggerInterface $logger,
     ) {}
 
     public function handle(Request $request): Response
     {
-        // Пытаемся создать ID автора статьи И ID статьи из данных запроса
         try {
-            $authorId = $request->jsonBodyField('author_id');
-            $postId = $request->jsonBodyField('post_id');
-            $text = $request->jsonBodyField('text');
-        } catch (HttpException $e) {
+            $user = $this->authentication->user($request);
+            $userId = $user->getId();
+        } catch (AuthException $e) {
             return new ErrorResponse($e->getMessage());
         }
 
-        // Пытаемся найти автора в репозитории
         try {
-            $this->usersRepository->get($authorId);
-        } catch (UserNotFoundException $e) {
+            $postId = $request->jsonBodyField('post_id');
+        } catch (HttpException $e) {
             return new ErrorResponse($e->getMessage());
         }
 
@@ -53,11 +52,11 @@ class CreateComment implements ActionInterface
         }
 
         try {
+            $text = $request->jsonBodyField('text');
             // Пытаемся создать объект статьи из данных запроса
             $comment = new Comment(
-                0,
                 $postId,
-                $authorId,
+                $userId,
                 $text,
             );
         } catch (HttpException $e) {
@@ -72,7 +71,9 @@ class CreateComment implements ActionInterface
 
         // Возвращаем успешный ответ, содержащий id нового комментария
         return new SuccessfulResponse([
-            'id' => (string)$comment->getId(),
+            'post_id' => $postId,
+            'user_id' => $userId,
+            'text' => $text,
         ]);
     }
 }

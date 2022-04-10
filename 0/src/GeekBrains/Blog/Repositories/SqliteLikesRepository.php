@@ -48,7 +48,7 @@ class SqliteLikesRepository extends SqliteRepository implements LikesRepositoryI
     /**
      * @throws LikeNotFoundException
      */
-    public function getByPostId(int $id): Like
+    public function getByPostId(int $id): array
     {
         $statement = $this->connection->prepare(
             'SELECT * FROM likes WHERE post_id = :id'
@@ -61,11 +61,12 @@ class SqliteLikesRepository extends SqliteRepository implements LikesRepositoryI
         $likes = [];
 
         while (($row = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
-            $likes[] = new Like(
-                $row['id'],
+            $like = new Like(
                 $row['post_id'],
                 $row['user_id'],
             );
+            $like->setId($row['id']);
+            $likes[] = $like;
         }
 
         if (!count($likes)) {
