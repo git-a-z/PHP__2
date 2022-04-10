@@ -1,0 +1,48 @@
+#GET http://127.0.0.1:8000/some/page
+
+#GET http://127.0.0.1:8000/users/show?username=ivan10
+
+#GET http://127.0.0.1:8000/posts/show?id=65
+
+#DELETE http://127.0.0.1:8000/posts?id=80
+
+#POST http://127.0.0.1:8000/posts/comment
+#
+#{
+#"username": "ivan8",
+#"password": "ivan1234",
+#"post_id": "30",
+#"text": "new comment text+"
+#}
+
+#POST http://127.0.0.1:8000/likes/create
+#
+#{
+#"username": "ivan8",
+#"password": "ivan1234",
+#"post_id": "66"
+#}
+
+#POST http://127.0.0.1:8000/posts/create
+#
+#{
+#"username": "ivan7",
+#"password": "ivan1234",
+#"text": "some text",
+#"title": "some title"
+#}
+
+#POST http://127.0.0.1:8000/login
+#
+#{
+#"username": "ivan7",
+#"password": "ivan1234"
+#}
+
+#POST http://127.0.0.1:8000/posts/create
+#Authorization: Bearer 5f77fbb27adcc9b1339c1b33cc7a892a9da1d677eeea54312dde65e214876e88af0e630db7bcc69b
+#
+#{
+#"text": "some text",
+#"title": "some title"
+#}
