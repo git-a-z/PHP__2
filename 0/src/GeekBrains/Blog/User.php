@@ -2,18 +2,53 @@
 
 namespace GeekBrains\Blog;
 
+use GeekBrains\Traits\Id;
+use JetBrains\PhpStorm\Pure;
+
 class User
 {
+    use Id;
+
     public function __construct(
-        private int $id,
         private string $username,
+        // Переименовали поле password
+        private string $hashedPassword,
         private string $firstName,
         private string $lastName
     ) {}
 
-    public function getId(): int
+    // Переименовали функцию
+    public function getHashedPassword(): string
     {
-        return $this->id;
+        return $this->hashedPassword;
+    }
+
+    // Функция для вычисления хеша
+    private static function hash(string $password, string $username): string
+    {
+        return hash('sha256', $username . $password);
+    }
+
+    // Функция для проверки предъявленного пароля
+    #[Pure] public function checkPassword(string $password): bool
+    {
+        return $this->hashedPassword === self::hash($password, $this->username);
+    }
+
+    // Функция для создания нового пользователя
+    #[Pure] public static function createFrom(
+        string $username,
+        string $password,
+        string $firstName,
+        string $lastName
+    ): self
+    {
+        return new self(
+            $username,
+            self::hash($password, $username),
+            $firstName,
+            $lastName
+        );
     }
 
     public function getUsername(): string

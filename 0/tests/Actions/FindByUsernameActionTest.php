@@ -80,8 +80,8 @@ class FindByUsernameActionTest extends TestCase
         // На этот раз в репозитории есть нужный нам пользователь
         $usersRepository = $this->usersRepository([
             new User(
-                0,
                 'ivan',
+                '',
                 'Ivan',
                 'Nikitin'
             ),
@@ -93,7 +93,7 @@ class FindByUsernameActionTest extends TestCase
         $response = $action->handle($request);
         // Проверяем, что ответ - удачный
         $this->assertInstanceOf(SuccessfulResponse::class, $response);
-        $this->expectOutputString('{"success":true,"data":{"username":"ivan","name":"Ivan Nikitin"}}');
+        $this->expectOutputString('{"success":true,"data":{"id":null,"username":"ivan","name":"Ivan Nikitin"}}');
         $response->send();
     }
 

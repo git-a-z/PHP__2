@@ -1,6 +1,7 @@
 <?php
 
 use GeekBrains\Blog\Exceptions\AppException;
+use GeekBrains\Blog\Http\Actions\Auth\LogIn;
 use GeekBrains\Blog\Http\Actions\Comments\CreateComment;
 use GeekBrains\Blog\Http\Actions\Likes\CreateLike;
 use GeekBrains\Blog\Http\Actions\Posts\CreatePost;
@@ -55,6 +56,8 @@ $routes = [
         '/posts/create' => CreatePost::class,
         '/posts/comment' => CreateComment::class,
         '/likes/create' => CreateLike::class,
+        // Добавили маршрут обмена пароля на токен
+        '/login' => LogIn::class,
     ],
     'DELETE' => [
         '/posts' => DeletePost::class,

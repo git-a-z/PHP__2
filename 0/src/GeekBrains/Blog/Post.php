@@ -2,23 +2,21 @@
 
 namespace GeekBrains\Blog;
 
+use GeekBrains\Traits\Id;
+
 class Post
 {
+    use Id;
+
     public function __construct(
-        private int $id,
-        private int $author_id,
+        private int $user_id,
         private string $title,
         private string $text
     ) {}
 
-    public function getId(): int
+    public function getUserId(): int
     {
-        return $this->id;
-    }
-
-    public function getAuthorId(): int
-    {
-        return $this->author_id;
+        return $this->user_id;
     }
 
     public function getTitle(): string
@@ -34,6 +32,6 @@ class Post
     public function __toString()
     {
         return sprintf('[%d]. Автор [%d] пишет в статье "%s" — %s', 
-            $this->id, $this->author_id, $this->title, $this->text);
+            $this->id, $this->user_id, $this->title, $this->text);
     }
 }

@@ -2,12 +2,15 @@
 
 namespace GeekBrains\Blog;
 
+use GeekBrains\Traits\Id;
+
 class Comment
 {
+    use Id;
+
     public function __construct(
-        private int $id,
         private int $post_id,
-        private int $author_id,
+        private int $user_id,
         private string $text
     ) {}
 
@@ -21,9 +24,9 @@ class Comment
         return $this->post_id;
     }
 
-    public function getAuthorId(): int
+    public function getUserId(): int
     {
-        return $this->author_id;
+        return $this->user_id;
     }
 
     public function getText(): string
@@ -34,6 +37,6 @@ class Comment
     public function __toString()
     {
         return sprintf('[%d]. Пользователь [%d] комментирует статью [%d] — %s', 
-            $this->id, $this->author_id, $this->post_id, $this->text);
+            $this->id, $this->user_id, $this->post_id, $this->text);
     }
 }

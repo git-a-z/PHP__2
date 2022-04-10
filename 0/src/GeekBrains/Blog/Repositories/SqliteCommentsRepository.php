@@ -11,13 +11,13 @@ class SqliteCommentsRepository extends SqliteRepository implements CommentsRepos
     public function save(Comment $comment): void
     {
         $statement = $this->connection->prepare(
-            'INSERT INTO comments (post_id, author_id, text)
-            VALUES (:post_id, :author_id, :text)'
+            'INSERT INTO comments (post_id, user_id, text)
+            VALUES (:post_id, :user_id, :text)'
         );
 
         $statement->execute([
             ':post_id' => $comment->getPostId(),
-            ':author_id' => $comment->getAuthorId(),
+            ':user_id' => $comment->getUserId(),
             ':text' => $comment->getText()
         ]);
     }
@@ -38,16 +38,17 @@ class SqliteCommentsRepository extends SqliteRepository implements CommentsRepos
         $result = $statement->fetch(PDO::FETCH_ASSOC);
 
         if (false === $result) {
-            throw new CommentNotFoundException(
-                "Cannot find comment: $id"
-            );
+            throw new CommentNotFoundException("Cannot find comment: $id");
         }
 
-        return new Comment(
-            $result['id'],
-            $result['post_id'], 
-            $result['author_id'], 
+        $comment = new Comment(
+            $result['post_id'],
+            $result['user_id'],
             $result['text'],
         );
+
+        $comment->setId($result['id']);
+
+        return $comment;
     }
 }

@@ -8,10 +8,13 @@ class ErrorResponse extends Response
 {
     protected const SUCCESS = false;
 
+//    private ?int $id = null;
+//    protected ?string $reason = 'Something goes wrong+';
+
     // Неуспешный ответ содержит строку с причиной неуспеха,
     // по умолчанию - 'Something goes wrong'
     public function __construct(
-        private string $reason = 'Something goes wrong'
+        protected string $reason = 'Something goes wrong'
     ) {}
 
     // Реализация абстрактного метода

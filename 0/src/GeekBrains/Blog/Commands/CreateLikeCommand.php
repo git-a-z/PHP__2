@@ -27,7 +27,6 @@ class CreateLikeCommand implements CommandInterface
         $userId = $arguments->get('user_id');
 
         $this->likesRepository->save(new Like(
-            0,
             $postId,
             $userId
         ));

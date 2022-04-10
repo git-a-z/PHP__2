@@ -12,14 +12,15 @@ class SqliteUsersRepository extends SqliteRepository implements UsersRepositoryI
     public function save(User $user): void
     {
         $statement = $this->connection->prepare(
-            'INSERT INTO users (username, first_name, last_name)
-            VALUES (:username, :first_name, :last_name)'
+            'INSERT INTO users (username, password, first_name, last_name)
+            VALUES (:username, :password, :first_name, :last_name)'
         );
 
         $statement->execute([
             ':username' => $user->getUsername(),
+            ':password' => $user->getHashedPassword(),
             ':first_name' => $user->getFirstName(),
-            ':last_name' => $user->getLastName()
+            ':last_name' => $user->getLastName(),
         ]);
     }
 
@@ -60,19 +61,21 @@ class SqliteUsersRepository extends SqliteRepository implements UsersRepositoryI
      */
     private function getUser(PDOStatement $statement, string $username): User
     {
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
+        $data = $statement->fetch(PDO::FETCH_OBJ);
 
-        if (false === $result) {
-            throw new UserNotFoundException(
-                "Cannot find user: $username"
-            );
+        if (!$data) {
+            throw new UserNotFoundException("Cannot find user: $username");
         }
 
-        return new User(
-            $result['id'],
-            $result['username'], 
-            $result['first_name'], 
-            $result['last_name'],
+        $user = new User(
+            $data->username,
+            $data->password,
+            $data->first_name,
+            $data->last_name,
         );
+
+        $user->setId($data->id);
+
+        return $user;
     }
 }

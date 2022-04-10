@@ -34,12 +34,16 @@ class CreateUserCommand implements CommandInterface
             return;
         }
 
-        $this->usersRepository->save(new User(
-            0,
+        // Создаём объект пользователя
+        // Функция createFrom сама создаст UUID
+        // и захеширует пароль
+        $user = User::createFrom(
             $username,
-            $arguments->get('first_name'), 
+            $arguments->get('password'),
+            $arguments->get('first_name'),
             $arguments->get('last_name')
-        ));
+        );
+        $this->usersRepository->save($user);
 
         // Логируем информацию о новом пользователе
         $this->logger->info("User created: $username");
