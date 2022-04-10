@@ -1,0 +1,30 @@
+#GET http://127.0.0.1:8000/some/page
+
+#GET http://127.0.0.1:8000/users/show?username=ivan1000
+
+#GET http://127.0.0.1:8000/posts/show?id=300
+
+#DELETE http://127.0.0.1:8000/posts?id=29
+
+#POST http://127.0.0.1:8000/posts/create
+#
+#{
+#"author_id": "40",
+#"text": "some text",
+#"title": "some title"
+#}
+
+#POST http://127.0.0.1:8000/posts/comment
+#
+#{
+#"author_id": "40",
+#"post_id": "16",
+#"text": "new comment text+"
+#}
+
+#POST http://127.0.0.1:8000/likes/create
+#
+#{
+#"post_id": "30",
+#"user_id": "45"
+#}

@@ -1,0 +1,44 @@
+{
+    "database.connections": {
+        "1646754718856": {
+            "key": "1646754718856",
+            "host": "127.0.0.1",
+            "port": "3306",
+            "user": "root",
+            "password": "",
+            "timezone": "+00:00",
+            "useSSL": false,
+            "isCluster": false,
+            "clientCertPath": null,
+            "clientKeyPath": null,
+            "ssh": {
+                "host": "",
+                "privateKeyPath": "C:\\Users\\0\\.ssh\\id_rsa",
+                "port": 22,
+                "username": "root",
+                "type": "privateKey",
+                "connectTimeout": 10000,
+                "algorithms": {
+                    "cipher": []
+                }
+            },
+            "usingSSH": false,
+            "esAuth": "none",
+            "encoding": "utf8",
+            "showHidden": false,
+            "connectionKey": "database.connections",
+            "hideSystemSchema": true,
+            "global": false,
+            "dbType": "SQLite",
+            "connectionUrl": "",
+            "encrypt": true,
+            "dbPath": "c:\\OpenServer\\domains\\localhost\\php2_1\\00\\blog.sqlite",
+            "authType": "default",
+            "disable": false,
+            "includeDatabases": null,
+            "database": null,
+            "name": "blog.sqlite",
+            "tooltip": "Host: 127.0.0.1, Port: 3306"
+        }
+    }
+}
