@@ -20,6 +20,10 @@ use GeekBrains\Blog\Repositories\UsersRepositoryInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use Faker\Provider\Lorem;
+use Faker\Provider\ru_RU\Internet;
+use Faker\Provider\ru_RU\Person;
+use Faker\Provider\ru_RU\Text;
 
 // Подключаем автозагрузчик Composer
 require_once __DIR__ . '/vendor/autoload.php';
@@ -112,6 +116,20 @@ $container->bind(
 $container->bind(
     TokenAuthenticationInterface::class,
     BearerTokenAuthentication::class
+);
+
+// Создаём объект генератора тестовых данных
+$faker = new \Faker\Generator();
+// Инициализируем необходимые нам виды данных
+$faker->addProvider(new Person($faker));
+$faker->addProvider(new Text($faker));
+$faker->addProvider(new Internet($faker));
+$faker->addProvider(new Lorem($faker));
+// Добавляем генератор тестовых данных
+// в контейнер внедрения зависимостей
+$container->bind(
+    \Faker\Generator::class,
+    $faker
 );
 
 // Возвращаем объект контейнера

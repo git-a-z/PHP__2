@@ -126,6 +126,8 @@ class FindByUsernameActionTest extends TestCase
                 }
                 throw new UserNotFoundException("Not found");
             }
+
+            public function update(User $user): void {}
         };
     }
 }
