@@ -5,21 +5,35 @@ namespace GeekBrains\Blog\Repositories;
 use GeekBrains\Blog\Post;
 use GeekBrains\Blog\Exceptions\PostNotFoundException;
 use PDO;
+use PDOException;
 
 class SqlitePostsRepository extends SqliteRepository implements PostsRepositoryInterface
 {
     public function save(Post $post): void
     {
-        $statement = $this->connection->prepare(
-            'INSERT INTO posts (author_id, title, text)
-            VALUES (:author_id, :title, :text)'
-        );
+        try {
+            $this->connection->beginTransaction();
 
-        $statement->execute([
-            ':author_id' => $post->getAuthorId(),
-            ':title' => $post->getTitle(),
-            ':text' => $post->getText()
-        ]);
+            $statement = $this->connection->prepare(
+                'INSERT INTO posts (user_id, title, text)
+                VALUES (:user_id, :title, :text)'
+            );
+
+            $statement->execute([
+                ':user_id' => $post->getUserId(),
+                ':title' => $post->getTitle(),
+                ':text' => $post->getText()
+            ]);
+
+            $id = $this->connection->lastInsertId();
+            $post->setId($id);
+
+            $this->connection->commit();
+        }
+        catch(PDOException $e ) {
+            $this->connection->rollback();
+            print "Error!: " . $e->getMessage() . "</br>";
+        }
     }
 
     /**
@@ -38,17 +52,18 @@ class SqlitePostsRepository extends SqliteRepository implements PostsRepositoryI
         $result = $statement->fetch(PDO::FETCH_ASSOC);
 
         if (false === $result) {
-            throw new PostNotFoundException(
-                "Cannot find post: $id"
-            );
+            throw new PostNotFoundException("Cannot find post: $id");
         }
 
-        return new Post(
-            $result['id'],
-            $result['author_id'], 
+        $post = new Post(
+            $result['user_id'],
             $result['title'], 
             $result['text'],
         );
+
+        $post->setId($result['id']);
+
+        return $post;
     }
 
     /**
@@ -56,14 +71,15 @@ class SqlitePostsRepository extends SqliteRepository implements PostsRepositoryI
      */
     public function delete(int $id): void
     {
-        if ($this->get($id)) {
+        try {
             $statement = $this->connection->prepare(
-                'DELETE FROM posts WHERE id = :id'
+                'DELETE FROM posts WHERE id = ?'
             );
-
-            $statement->execute([
-                ':id' => $id
-            ]);
+            $statement->execute([(string)$id]);
+        } catch (PDOException $e) {
+            throw new PostNotFoundException(
+                $e->getMessage(), (int)$e->getCode(), $e
+            );
         }
     }
 }

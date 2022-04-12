@@ -26,9 +26,8 @@ class CreateCommentCommand implements CommandInterface
         $text = $arguments->get('text');
 
         $this->commentsRepository->save(new Comment(
-            0,
-            $arguments->get('post_id'), 
-            $arguments->get('author_id'),
+            $arguments->get('post_id'),
+            $arguments->get('user_id'),
             $text
         ));
 

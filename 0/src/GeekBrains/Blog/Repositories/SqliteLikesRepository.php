@@ -6,6 +6,7 @@ use GeekBrains\Blog\Exceptions\LikeException;
 use GeekBrains\Blog\Exceptions\LikeNotFoundException;
 use GeekBrains\Blog\Like;
 use PDO;
+use PDOException;
 
 class SqliteLikesRepository extends SqliteRepository implements LikesRepositoryInterface
 {
@@ -14,6 +15,7 @@ class SqliteLikesRepository extends SqliteRepository implements LikesRepositoryI
      */
     public function save(Like $like): void
     {
+
         $postId = $like->getPostId();
         $userId = $like->getUserId();
 
@@ -34,21 +36,34 @@ class SqliteLikesRepository extends SqliteRepository implements LikesRepositoryI
             );
         }
 
-        $statement = $this->connection->prepare(
-            'INSERT INTO likes (post_id, user_id)
-            VALUES (:post_id, :user_id)'
-        );
+        try {
+            $this->connection->beginTransaction();
 
-        $statement->execute([
-            ':post_id' => $postId,
-            ':user_id' => $userId
-        ]);
+            $statement = $this->connection->prepare(
+                'INSERT INTO likes (post_id, user_id)
+                VALUES (:post_id, :user_id)'
+            );
+
+            $statement->execute([
+                ':post_id' => $postId,
+                ':user_id' => $userId
+            ]);
+
+            $id = $this->connection->lastInsertId();
+            $like->setId($id);
+
+            $this->connection->commit();
+        }
+        catch(PDOException $e ) {
+            $this->connection->rollback();
+            print "Error!: " . $e->getMessage() . "</br>";
+        }
     }
 
     /**
      * @throws LikeNotFoundException
      */
-    public function getByPostId(int $id): Like
+    public function getByPostId(int $id): array
     {
         $statement = $this->connection->prepare(
             'SELECT * FROM likes WHERE post_id = :id'
@@ -61,11 +76,12 @@ class SqliteLikesRepository extends SqliteRepository implements LikesRepositoryI
         $likes = [];
 
         while (($row = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
-            $likes[] = new Like(
-                $row['id'],
+            $like = new Like(
                 $row['post_id'],
                 $row['user_id'],
             );
+            $like->setId($row['id']);
+            $likes[] = $like;
         }
 
         if (!count($likes)) {

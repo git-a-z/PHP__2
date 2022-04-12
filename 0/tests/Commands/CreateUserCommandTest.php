@@ -2,15 +2,17 @@
 
 namespace Commands;
 
-use GeekBrains\Blog\Commands\Arguments;
-use GeekBrains\Blog\Commands\DummyLogger;
+use Exception;
+use GeekBrains\Blog\Commands\Users\CreateUser;
 use GeekBrains\Blog\Exceptions\CommandException;
 use GeekBrains\Blog\Exceptions\UserNotFoundException;
 use GeekBrains\Blog\Exceptions\ArgumentsException;
-use GeekBrains\Blog\Commands\CreateUserCommand;
 use GeekBrains\Blog\Repositories\UsersRepositoryInterface;
 use GeekBrains\Blog\User;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 
 class CreateUserCommandTest extends TestCase
 {
@@ -28,53 +30,78 @@ class CreateUserCommandTest extends TestCase
             {
                 throw new UserNotFoundException("User not found");
             }
+
+            public function update(User $user): void {}
         };
     }
 
     // Тест проверяет, что команда действительно требует имя пользователя
+    /**
+     * @throws Exception
+     */
     public function testItRequiresFirstName(): void
     {
-        // $usersRepository - это объект анонимного класса,
-        // реализующего контракт UsersRepositoryInterface
-        $usersRepository = $this->getAnonymousUsersRepository();
-
-        // Передаём объект анонимного класса
-        // в качестве реализации UsersRepositoryInterface
-        $command = new CreateUserCommand(
-            $usersRepository,
-            new DummyLogger()
+        $command = new CreateUser(
+            $this->getAnonymousUsersRepository()
         );
 
-        // Ожидаем, что будет брошено исключение
-        $this->expectException(ArgumentsException::class);
-        $this->expectExceptionMessage('No such argument: first_name');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Not enough arguments (missing: "first_name, last_name").'
+        );
 
-        // Запускаем команду
-        $command->handle(new Arguments(['username' => 'Ivan']));
+        $command->run(
+            new ArrayInput([
+                'username' => 'Ivan',
+                'password' => 'some_password',
+            ]),
+            new NullOutput()
+        );
     }
 
     // Тест проверяет, что команда действительно требует фамилию пользователя
+    /**
+     * @throws Exception
+     */
     public function testItRequiresLastName(): void
     {
-        // Передаём в конструктор команды объект, возвращаемый нашей функцией
-        $command = new CreateUserCommand(
+        // Тестируем новую команду
+        $command = new CreateUser(
             $this->getAnonymousUsersRepository(),
-            new DummyLogger()
         );
-        $this->expectException(ArgumentsException::class);
-        $this->expectExceptionMessage('No such argument: last_name');
-        $command->handle(new Arguments([
-            'username' => 'Ivan',
-            // Нам нужно передать имя пользователя,
-            // чтобы дойти до проверки наличия фамилии
-            'first_name' => 'Ivan',
-        ]));
+
+        // Меняем тип ожидаемого исключения ..
+        $this->expectException(RuntimeException::class);
+
+        // .. и его сообщение
+        $this->expectExceptionMessage(
+            'Not enough arguments (missing: "last_name").'
+        );
+
+        // Запускаем команду методом run вместо handle
+        $command->run(
+            // Передаём аргументы как ArrayInput,
+            // а не Arguments
+            // Сами аргументы не меняются
+            new ArrayInput([
+                'username' => 'Ivan',
+                'password' => 'some_password',
+                'first_name' => 'Ivan',
+            ]),
+            // Передаём также объект,
+            // реализующий контракт OutputInterface
+            // Нам подойдёт реализация,
+            // которая ничего не делает
+            new NullOutput()
+        );
     }
 
     // Тест, проверяющий, что команда сохраняет пользователя в репозитории
+
     /**
      * @throws ArgumentsException
      * @throws CommandException
+     * @throws Exception
      */
     public function testItSavesUserToRepository(): void
     {
@@ -108,23 +135,46 @@ class CreateUserCommandTest extends TestCase
             {
                 return $this->called;
             }
+
+            public function update(User $user): void {}
         };
 
-        // Передаём наш мок в команду
-        $command = new CreateUserCommand(
-            $usersRepository,
-            new DummyLogger()
+        $command = new CreateUser(
+            $usersRepository
         );
 
-        // Запускаем команду
-        $command->handle(new Arguments([
-            'username' => 'Ivan',
-            'first_name' => 'Ivan',
-            'last_name' => 'Nikitin',
-        ]));
+        $command->run(
+            new ArrayInput([
+                'username' => 'Ivan',
+                'password' => 'some_password',
+                'first_name' => 'Ivan',
+                'last_name' => 'Nikitin',
+            ]),
+            new NullOutput()
+        );
 
-        // Проверяем утверждение относительно мока,
-        // а не утверждение относительно команды
         $this->assertTrue($usersRepository->wasCalled());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testItRequiresPassword(): void
+    {
+        $command = new CreateUser(
+            $this->getAnonymousUsersRepository()
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Not enough arguments (missing: "first_name, last_name, password")'
+        );
+
+        $command->run(
+            new ArrayInput([
+                'username' => 'Ivan',
+            ]),
+            new NullOutput()
+        );
     }
 }

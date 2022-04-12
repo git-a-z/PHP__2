@@ -47,7 +47,8 @@ class FindById implements ActionInterface
 
         // Возвращаем успешный ответ
         return new SuccessfulResponse([
-            'author_id' => $post->getAuthorId(),
+            'id' => $post->getId(),
+            'user_id' => $post->getUserId(),
             'title' => $post->getTitle(),
             'text' => $post->getText()
         ]);

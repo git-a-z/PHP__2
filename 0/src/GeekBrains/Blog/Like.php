@@ -2,18 +2,16 @@
 
 namespace GeekBrains\Blog;
 
+use GeekBrains\Traits\Id;
+
 class Like
 {
+    use Id;
+
     public function __construct(
-        private int $id,
         private int $post_id,
         private int $user_id
     ) {}
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     public function getPostId(): int
     {
