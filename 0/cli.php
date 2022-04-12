@@ -1,27 +1,33 @@
 <?php
 
-use GeekBrains\Blog\Repositories\RepositoryFactory;
-use GeekBrains\Blog\Commands\CommandFactory;
-use GeekBrains\Blog\Commands\Arguments;
-use Psr\Log\LoggerInterface;
+use GeekBrains\Blog\Commands\FakeData\PopulateDB;
+use GeekBrains\Blog\Commands\Posts\DeletePost;
+use GeekBrains\Blog\Commands\Users\CreateUser;
+use GeekBrains\Blog\Commands\Users\UpdateUser;
+use Symfony\Component\Console\Application;
 
-// Подключаем файл bootstrap.php и получаем настроенный контейнер
 $container = require __DIR__ . '/bootstrap.php';
 
-// Получаем объект логгера из контейнера
-$logger = $container->get(LoggerInterface::class);
+// Создаём объект приложения
+$application = new Application();
 
+// Перечисляем классы команд
+$commandsClasses = [
+    CreateUser::class,
+    DeletePost::class,
+    UpdateUser::class,
+    PopulateDB::class,
+];
+
+foreach ($commandsClasses as $commandClass) {
+    // Посредством контейнера создаём объект команды
+    $command = $container->get($commandClass);
+    // Добавляем команду к приложению
+    $application->add($command);
+}
+
+// Запускаем приложение
 try {
-    $repositoryFactory = $container->get(RepositoryFactory::class);
-    $repository = $repositoryFactory->create($argv[1]);
-    $commandFactory = $container->get(CommandFactory::class);
-    $command = $commandFactory->create($argv[1], $repository, $logger);
-    $command->handle(Arguments::fromArgv($argv));
-} catch (Throwable $e) {
-    echo "{$e->getMessage()}\n";
-    // Логируем информацию об исключении.
-    // Объект исключения передаётся логгеру
-    // с ключом "exception".
-    // Уровень логирования – ERROR
-    $logger->error($e->getMessage(), ['exception' => $e]);
+    $application->run();
+} catch (Exception $e) {
 }

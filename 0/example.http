@@ -1,10 +1,10 @@
 #GET http://127.0.0.1:8000/some/page
 
-#GET http://127.0.0.1:8000/users/show?username=ivan10
+#GET http://127.0.0.1:8000/users/show?username=larisa70
 
-#GET http://127.0.0.1:8000/posts/show?id=65
+#GET http://127.0.0.1:8000/posts/show?id=320
 
-#DELETE http://127.0.0.1:8000/posts?id=80
+#DELETE http://127.0.0.1:8000/posts?id=300
 
 #POST http://127.0.0.1:8000/posts/comment
 #

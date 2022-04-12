@@ -35,7 +35,7 @@ class CreateUserCommand implements CommandInterface
         }
 
         // Создаём объект пользователя
-        // Функция createFrom сама создаст UUID
+        // Функция createFrom сама создаст ID
         // и захеширует пароль
         $user = User::createFrom(
             $username,
